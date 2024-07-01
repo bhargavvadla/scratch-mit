@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { FaArrowRotateLeft, FaArrowRotateRight, FaHand } from 'react-icons/fa6';
 import { IoMdArrowRoundForward, IoMdArrowRoundUp } from 'react-icons/io';
 import AutoGrowInput from './AutoGrowInput';
-import { updateLabels } from '../store/slices/GraphicsSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useActionsMap } from '../utils';
+import { updateLabels } from '../store/slices/GraphicsSlice';
 
 export default function ToolBar() {
+  const actionsMap = useActionsMap();
   const [xStepsFront, setXStepsFront] = useState(10);
   const [yStepsUp, setYStepsUp] = useState(10);
   const dispatch = useDispatch();
@@ -70,7 +72,7 @@ export default function ToolBar() {
     }
   };
 
-  const handleDragStart = (event, action, type) => {
+  const handleDragStart = (event, action, type, onDrag = true) => {
     let data = {};
     if (type === 'MOTION') {
       data = {
@@ -86,9 +88,15 @@ export default function ToolBar() {
       };
     }
 
-    event.dataTransfer.setData('application/json', JSON.stringify(data));
-    const cloneDiv = event.target.cloneNode(true);
-    event.dataTransfer.setDragImage(cloneDiv, 0, 0);
+    if (onDrag) {
+      event.dataTransfer.setData('application/json', JSON.stringify(data));
+      const cloneDiv = event.target.cloneNode(true);
+      event.dataTransfer.setDragImage(cloneDiv, 0, 0);
+    } else {
+      if (actionsMap[action]) {
+        actionsMap[action](type === 'MOTION' ? data.value : data.info);
+      }
+    }
   };
 
   const handleRotateRight = (event) => {
@@ -119,6 +127,7 @@ export default function ToolBar() {
           id='moveFront'
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'moveFront', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'moveFront', 'MOTION')}>
           {'Move '}
           <AutoGrowInput
@@ -132,6 +141,7 @@ export default function ToolBar() {
           id='moveUp'
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'moveUp', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'moveUp', 'MOTION')}>
           {'Move '}
           <AutoGrowInput
@@ -145,6 +155,7 @@ export default function ToolBar() {
           id='rotateRight'
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'rotateRight', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'rotateRight', 'MOTION')}>
           {'Turn '}
           <FaArrowRotateRight className='code-block-icon' />
@@ -155,6 +166,7 @@ export default function ToolBar() {
           id='rotateLeft'
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'rotateLeft', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'rotateLeft', 'MOTION')}>
           {'Turn '}
           <FaArrowRotateLeft className='code-block-icon' />
@@ -165,6 +177,7 @@ export default function ToolBar() {
         <div
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'changeX', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'changeX', 'MOTION')}>
           {'Change X by '}
           <AutoGrowInput
@@ -176,6 +189,7 @@ export default function ToolBar() {
         <div
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'changeY', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'changeY', 'MOTION')}>
           {'Change Y by '}
           <AutoGrowInput
@@ -187,6 +201,7 @@ export default function ToolBar() {
         <div
           className='flex flex-row flex-wrap code-block bg-blue mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'changeXY', 'MOTION', false)}
           onDragStart={(e) => handleDragStart(e, 'changeXY', 'MOTION')}>
           {'Go to X '}
           <AutoGrowInput
@@ -255,16 +270,18 @@ export default function ToolBar() {
         <h1 className='text-md font-bold mb-2'>Looks</h1>
         <div
           id='sayHello'
-          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center'
+          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'sayHello', 'LOOKS', false)}
           onDragStart={(e) => handleDragStart(e, 'sayHello', 'LOOKS')}>
           {'Say Hello!'}
           <FaHand className='code-block-icon' />
         </div>
         <div
           id='scheduleMessage'
-          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center'
+          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'scheduleMessage', 'LOOKS', false)}
           onDragStart={(e) => handleDragStart(e, 'scheduleMessage', 'LOOKS')}>
           {'Say '}
           <AutoGrowInput
@@ -281,16 +298,20 @@ export default function ToolBar() {
         </div>
         <div
           id='thinkHello'
-          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center'
+          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) => handleDragStart(e, 'thinkHello', 'LOOKS', false)}
           onDragStart={(e) => handleDragStart(e, 'thinkHello', 'LOOKS')}>
           {'Think Hello'}
           <FaHand className='code-block-icon' />
         </div>
         <div
           id='scheduleThinkMsg'
-          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center'
+          className='flex flex-row flex-wrap code-block bg-violet mb-4 items-center cursor-pointer'
           draggable={true}
+          onClick={(e) =>
+            handleDragStart(e, 'scheduleThinkMsg', 'LOOKS', false)
+          }
           onDragStart={(e) => handleDragStart(e, 'scheduleThinkMsg', 'LOOKS')}>
           {'Think '}
           <AutoGrowInput

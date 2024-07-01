@@ -51,6 +51,9 @@ const graphicsSlice = createSlice({
         ...action.payload,
       };
     },
+    resetState() {
+      return initialState;
+    },
   },
 });
 
@@ -63,7 +66,6 @@ export const {
   setRotation,
   setPosition,
   updateMsgInfo,
-  enqueLook,
-  dequeueLook,
+  resetState,
 } = graphicsSlice.actions;
 export default graphicsSlice.reducer;

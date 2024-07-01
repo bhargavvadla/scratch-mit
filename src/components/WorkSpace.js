@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
-  moveFront,
-  moveUp,
-  rotateLeft,
-  rotateRight,
+  resetState,
   setPosition,
   setRotation,
   updateMsgInfo,
 } from '../store/slices/GraphicsSlice';
 import { IoPlayCircle } from 'react-icons/io5';
 import { MdOutlineReplayCircleFilled } from 'react-icons/md';
+import { useActionsMap } from '../utils';
+import { FaPowerOff } from 'react-icons/fa6';
 
 export default function WorkSpace() {
   const dispatch = useDispatch();
+  const actionsMap = useActionsMap();
   const [actionStack, setActionStack] = useState([]);
   const [looksStack, setLooksStack] = useState([]);
   const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
@@ -60,20 +60,6 @@ export default function WorkSpace() {
     const { action, value } = actionStack[index];
     const stepIncrement = 1;
     let currentStep = 0;
-
-    const actionsMap = {
-      moveFront: (step) => dispatch(moveFront(step)),
-      moveUp: (step) => dispatch(moveUp(step)),
-      rotateRight: (step) => dispatch(rotateRight(step)),
-      rotateLeft: (step) => dispatch(rotateLeft(step)),
-      changeX: (step) => dispatch(moveFront(step)),
-      changeY: (step) => dispatch(moveUp(step)),
-      changeXY: (step) => {
-        dispatch(moveFront(step.x));
-        dispatch(moveUp(step.y));
-      },
-    };
-
     const performStep = () => {
       if (action === 'changeXY') {
         const xStep = Math.min(stepIncrement, value.x - currentStep);
@@ -129,7 +115,20 @@ export default function WorkSpace() {
     setTimeout(() => {
       executeActions(0);
       executeLooks();
-    }, 2000);
+    }, 1500);
+  };
+
+  const handleReset = () => {
+    setActionStack([]);
+    setLooksStack([]);
+    dispatch(resetState());
+
+    const previewArea = document.getElementById('preview-area');
+    if (previewArea) {
+      const centerX = Math.round(previewArea.offsetWidth / 2);
+      const centerY = Math.round(previewArea.offsetHeight / 2);
+      dispatch(setPosition({ x: centerX, y: centerY }));
+    }
   };
 
   const renderActionItem = (item, index) => {
@@ -180,6 +179,9 @@ export default function WorkSpace() {
         </button>
         <button onClick={handleReplay} type='button' className='replay-btn'>
           <MdOutlineReplayCircleFilled />
+        </button>
+        <button onClick={handleReset} type='button' className='replay-btn'>
+          <FaPowerOff className='reset-btn rounded-full p-0' />
         </button>
       </div>
     );
